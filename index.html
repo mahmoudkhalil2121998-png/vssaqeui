@@ -29,6 +29,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .tabs{display:flex;overflow-x:auto;scrollbar-width:none;padding-left:calc(44.5*var(--u));border-bottom:calc(1.5*var(--u)) solid var(--tl);position:sticky;top:calc(calc(116*var(--u)) + env(safe-area-inset-top,0px));background:var(--bg);z-index:6}.tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:none;padding:0 calc(28.5*var(--u)) calc(25.5*var(--u));color:var(--tg);font-size:calc(40.5*var(--u));font-weight:600;line-height:calc(50*var(--u));border-bottom:calc(5*var(--u)) solid transparent;white-space:nowrap}
 .tabs button.on{color:var(--tx);border-color:var(--tx)}
+.tabs+.card,.tabs+*>.card:first-child{margin-top:calc(25*var(--u))}
 .card{background:var(--card);border-radius:calc(38*var(--u));margin:0 calc(22*var(--u)) calc(23*var(--u));padding:calc(62*var(--u)) calc(44*var(--u)) calc(70*var(--u))}
 .card:has(>.bar:last-child){padding-bottom:calc(87*var(--u))}
 .card h2{font-size:calc(46*var(--u));line-height:calc(50*var(--u));font-weight:700;margin:0;color:var(--tt)}
@@ -148,7 +149,7 @@ svg.rc{display:block;width:100%;height:auto;margin-top:calc(54*var(--u));overflo
 <script>
 var DEF={posted:"Nov 7, 2026, 4:12 PM",duration:"19.39s",views:20000,likes:277,comments:12,shares:0,saves:11,
 postViews:20700,playTime:"25h:24m:51s",avgWatch:"4.3s",fullPct:"1.77%",newFollowers:2,
-series:"52000,900,300",chartMax:57200,
+chartUnit:"days",series:"52000,900,300",chartMax:57200,
 traffic:"For You: 98.7\nPersonal profile: 0.7\nOther: 0.3\nFollowing: 0.3\nSearch: 0\nDirect messages: 0\nSound: 0",
 totalViewers:"18.7K",tvDelta:"+1",tvCmp:"vs 1d ago",newPct:95,nonFolPct:100,male:79,female:21,other:0,
 age:"18 - 24: 26\n25 - 34: 32\n35 - 44: 24\n45 - 54: 11\n55+: 7",
@@ -158,7 +159,7 @@ likesText:"Most viewers liked this video at 0:01. Check out the moment where mos
 retAvg:22,retText:"Most viewers stopped watching at 0:02. Check out the moment in your video where most viewers lost interest.",retSeries:"100, 88, 54, 37, 31, 25, 22, 19.5, 17, 15, 11.5, 8.5, 6, 5.2, 4.5, 3.5, 2.4, 2.4, 2.4, 2.4"};
 var SCHEMA=[
 {h:"Video",f:[["posted","Posted on","t"],["duration","Video length (example: 19.39s)","t"],["views","Plays (top row)","n"],["likes","Likes","n"],["comments","Comments","n"],["shares","Shares","n"],["saves","Saves","n"]]},
-{h:"Overview",f:[["postViews","Video views","n"],["playTime","Total play time","t"],["avgWatch","Average watch time","t"],["fullPct","Watched full video","t"],["newFollowers","New followers","n"],["series","Views over time: one number per day (first = posting day), separated by commas","t"],["chartMax","Chart top value (the top dashed line). 0 = use the highest number","n"]]},
+{h:"Overview",f:[["postViews","Video views","n"],["playTime","Total play time","t"],["avgWatch","Average watch time","t"],["fullPct","Watched full video","t"],["newFollowers","New followers","n"],["chartUnit","Chart unit: type days or hours","t"],["series","Views over time: one number per day (or per hour), separated by commas","t"],["chartMax","Chart top value (the top dashed line). 0 = use the highest number","n"]]},
 {h:"Retention rate",f:[["retAvg","Average % of the video watched (number only, 0 hides the line)","n"],["retText","Text under the average","t"],["retSeries","Percent still watching at each second, separated by commas (100 = everyone)","t"]]},
 {h:"Traffic sources",f:[["traffic","One per line as name: %","l"]]},
 {h:"Search queries",f:[["queries","One per line as query: %  (example: learn.with.mayaa: 100). Leave empty to show the default message.","l"]]},
@@ -224,7 +225,7 @@ if(p.length<2)return'<p class="empty">Add at least two numbers to draw the chart
 var H=420,X0=16,X1=839,mx=+d.chartMax>0?+d.chartMax:(Math.max.apply(null,p)||1),x=function(i){return X0+i/(p.length-1)*(X1-X0)},y=function(v){return H-Math.max(0,Math.min(mx,v))/mx*H},
 pts=p.map(function(v,i){return x(i).toFixed(1)+","+y(v).toFixed(1)}).join(" "),g="",
 MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],pd=new Date(String(d.posted).replace(/,\s*\d{1,2}:\d{2}.*$/,"")),ok=!isNaN(pd.getTime()),
-df=function(k){if(!ok)return"Day "+(k+1);var t=new Date(pd.getFullYear(),pd.getMonth(),pd.getDate()+k);return MO[t.getMonth()]+" "+t.getDate()},dl0=df(0),dl1=df(p.length-1);
+df=function(k){if(!ok)return"Day "+(k+1);var t=new Date(pd.getFullYear(),pd.getMonth(),pd.getDate()+k);return MO[t.getMonth()]+" "+t.getDate()},hr=/^h/i.test(String(d.chartUnit).trim()),dl0=hr?"0h":df(0),dl1=hr?(p.length-1)+"h":df(p.length-1);
 [1,2/3,1/3].forEach(function(f){var yy=y(mx*f).toFixed(1);g+='<line class="gl2" x1="'+X0+'" x2="'+X1+'" y1="'+yy+'" y2="'+yy+'"/><text class="rtx" x="931" y="'+(+yy+12)+'" text-anchor="end">'+fmt(mx*f,1)+'</text>'});
 return'<svg class="chart" viewBox="0 0 948 468">'+g+'<defs><linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--blue)" stop-opacity=".2"/><stop offset="1" stop-color="var(--blue)" stop-opacity="0"/></linearGradient></defs><polygon points="'+X0+','+H+' '+pts+' '+X1+','+H+'" fill="url(#gr)"/><polyline points="'+pts+'" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linejoin="round"/>'+(p.length<=12?p.map(function(v,i){return'<circle cx="'+x(i).toFixed(1)+'" cy="'+y(v).toFixed(1)+'" r="9" fill="var(--card)" stroke="var(--blue)" stroke-width="4"/>'}).join(""):"")+'<line x1="'+X0+'" x2="'+X1+'" y1="'+H+'" y2="'+H+'" stroke="var(--tl)" stroke-width="3"/><text class="rtx" x="'+X0+'" y="'+(H+47)+'">'+dl0+'</text><text class="rtx" x="'+X1+'" y="'+(H+47)+'" text-anchor="end">'+dl1+'</text></svg>'}
 function pair(a,b,l1,l2){return'<div class="row"><b>'+(+a).toFixed(1)+'%</b><b>'+(+b).toFixed(1)+'%</b></div><div class="bar"><i style="width:'+a+'%"></i></div><div class="two"><span>'+l1+'</span><span>'+l2+'</span></div>'}
